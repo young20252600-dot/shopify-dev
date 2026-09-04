@@ -1,0 +1,1280 @@
+{% assign uid = section.id %}
+
+{%- liquid
+  assign collection_1 = section.settings.collection_1
+  assign collection_2 = section.settings.collection_2
+  assign collection_3 = section.settings.collection_3
+  assign default_product_1 = section.settings.default_product_1
+  assign default_product_2 = section.settings.default_product_2
+  assign default_product_3 = section.settings.default_product_3
+  assign empty_field_label = section.settings.empty_field_label
+  assign dropdown_title_metafield = section.settings.dropdown_title_metafield | default: 'custom.compare_title' | strip
+  assign dropdown_title_ns = ''
+  assign dropdown_title_key = ''
+  if dropdown_title_metafield contains '.'
+    assign dropdown_title_parts = dropdown_title_metafield | split: '.'
+    assign dropdown_title_ns = dropdown_title_parts[0]
+    assign dropdown_title_key = dropdown_title_parts[1]
+  endif
+  assign dropdown_subtitle_metafield = section.settings.dropdown_subtitle_metafield | default: 'custom.compare_subtitle' | strip
+  assign dropdown_subtitle_ns = ''
+  assign dropdown_subtitle_key = ''
+  if dropdown_subtitle_metafield contains '.'
+    assign dropdown_subtitle_parts = dropdown_subtitle_metafield | split: '.'
+    assign dropdown_subtitle_ns = dropdown_subtitle_parts[0]
+    assign dropdown_subtitle_key = dropdown_subtitle_parts[1]
+  endif
+  assign has_required_collections = false
+  if collection_1 != blank and collection_2 != blank
+    assign has_required_collections = true
+  endif
+  assign has_third_collection = false
+  if collection_3 != blank
+    assign has_third_collection = true
+  endif
+-%}
+
+<section class="compare-picker compare-picker--{{ uid }} has-third-collection--{{ has_third_collection }}">
+  <div class="compare-picker__container">
+    {% if section.settings.heading != blank %}
+      <h2 class="compare-picker__heading">{{ section.settings.heading }}</h2>
+    {% endif %}
+
+    {% unless has_required_collections %}
+      <div class="compare-picker__empty">{{ section.settings.empty_collection_text }}</div>
+    {% else %}
+      <div class="compare-picker__scroll" data-compare-scroll>
+        <div class="compare-picker__selectors" data-selectors>
+          <div class="compare-picker__selector" data-picker-label="{{ collection_1.title | escape }}">
+            <select class="compare-picker__select" aria-label="Select product 1" data-slot="0">
+              {% for p in collection_1.products %}
+                {%- liquid
+                  assign opt_title = p.title
+                  assign opt_title_mf = blank
+                  if dropdown_title_ns != blank and dropdown_title_key != blank
+                    assign opt_title_mf = p.metafields[dropdown_title_ns][dropdown_title_key]
+                  endif
+                  if opt_title_mf != blank
+                    capture opt_title_value
+                      echo opt_title_mf.value | default: opt_title_mf
+                    endcapture
+                    assign opt_title = opt_title_value | strip | default: p.title
+                  endif
+                -%}
+                <option value="{{ p.handle }}" {% if default_product_1 != blank and p.handle == default_product_1.handle %}selected{% elsif default_product_1 == blank and forloop.first %}selected{% endif %}>{{ opt_title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="compare-picker__selector" data-picker-label="{{ collection_2.title | escape }}">
+            <select class="compare-picker__select" aria-label="Select product 2" data-slot="1">
+              {% for p in collection_2.products %}
+                {%- liquid
+                  assign opt_title = p.title
+                  assign opt_title_mf = blank
+                  if dropdown_title_ns != blank and dropdown_title_key != blank
+                    assign opt_title_mf = p.metafields[dropdown_title_ns][dropdown_title_key]
+                  endif
+                  if opt_title_mf != blank
+                    capture opt_title_value
+                      echo opt_title_mf.value | default: opt_title_mf
+                    endcapture
+                    assign opt_title = opt_title_value | strip | default: p.title
+                  endif
+                -%}
+                <option value="{{ p.handle }}" {% if default_product_2 != blank and p.handle == default_product_2.handle %}selected{% elsif default_product_2 == blank and forloop.first %}selected{% endif %}>{{ opt_title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="compare-picker__selector compare-picker__selector--desktop" data-picker-label="{{ collection_3.title | escape }}">
+            <select class="compare-picker__select" aria-label="Select product 3" data-slot="2" {% if collection_3 == blank %}disabled{% endif %}>
+              {% if collection_3 == blank %}
+                <option value="" selected>Please select collection 3</option>
+              {% else %}
+                {% for p in collection_3.products %}
+                  {%- liquid
+                    assign opt_title = p.title
+                    assign opt_title_mf = blank
+                    if dropdown_title_ns != blank and dropdown_title_key != blank
+                      assign opt_title_mf = p.metafields[dropdown_title_ns][dropdown_title_key]
+                    endif
+                    if opt_title_mf != blank
+                      capture opt_title_value
+                        echo opt_title_mf.value | default: opt_title_mf
+                      endcapture
+                      assign opt_title = opt_title_value | strip | default: p.title
+                    endif
+                  -%}
+                  <option value="{{ p.handle }}" {% if default_product_3 != blank and p.handle == default_product_3.handle %}selected{% elsif default_product_3 == blank and forloop.first %}selected{% endif %}>{{ opt_title }}</option>
+                {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+        </div>
+
+        <div class="compare-picker__cards">
+          <article class="compare-picker__card" data-slot-card="0">
+            <a class="compare-picker__card-media" href="#" data-slot-link>
+              <img class="compare-picker__card-img" alt="" loading="lazy" width="900" height="900" data-slot-img>
+            </a>
+            <div class="compare-picker__card-body">
+              <a class="compare-picker__card-title" href="#" data-slot-title data-slot-link-text></a>
+              <div class="compare-picker__card-price" data-slot-price></div>
+              <a class="compare-picker__card-buy" href="#" data-slot-buy>{{ section.settings.buy_label }}</a>
+            </div>
+          </article>
+
+          <article class="compare-picker__card" data-slot-card="1">
+            <a class="compare-picker__card-media" href="#" data-slot-link>
+              <img class="compare-picker__card-img" alt="" loading="lazy" width="900" height="900" data-slot-img>
+            </a>
+            <div class="compare-picker__card-body">
+              <a class="compare-picker__card-title" href="#" data-slot-title data-slot-link-text></a>
+              <div class="compare-picker__card-price" data-slot-price></div>
+              <a class="compare-picker__card-buy" href="#" data-slot-buy>{{ section.settings.buy_label }}</a>
+            </div>
+          </article>
+
+          <article class="compare-picker__card compare-picker__card--desktop" data-slot-card="2">
+            <a class="compare-picker__card-media" href="#" data-slot-link>
+              <img class="compare-picker__card-img" alt="" loading="lazy" width="900" height="900" data-slot-img>
+            </a>
+            <div class="compare-picker__card-body">
+              <a class="compare-picker__card-title" href="#" data-slot-title data-slot-link-text></a>
+              <div class="compare-picker__card-price" data-slot-price></div>
+              <a class="compare-picker__card-buy" href="#" data-slot-buy>{{ section.settings.buy_label }}</a>
+            </div>
+          </article>
+        </div>
+
+        <div class="compare-picker__table" role="table" aria-label="{{ section.settings.table_label | escape }}">
+          <div class="compare-picker__table-body" role="rowgroup">
+            {% for block in section.blocks %}
+              {% if block.type != 'compare_field' %}
+                {% continue %}
+              {% endif %}
+              <div class="compare-picker__table-row" role="row" data-field-row="{{ block.id }}" {{ block.shopify_attributes }}>
+                <div class="compare-picker__cell compare-picker__cell--value" role="cell" data-slot-cell="0" data-field-id="{{ block.id }}" data-field-label="{{ block.settings.heading | escape }}"></div>
+                <div class="compare-picker__cell compare-picker__cell--value" role="cell" data-slot-cell="1" data-field-id="{{ block.id }}" data-field-label="{{ block.settings.heading | escape }}"></div>
+                <div class="compare-picker__cell compare-picker__cell--value compare-picker__cell--desktop hide-third" role="cell" data-slot-cell="2" data-field-id="{{ block.id }}" data-field-label="{{ block.settings.heading | escape }}"></div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <script type="application/json" data-compare-products-json>
+        {%- liquid
+          assign seen_handles = '|'
+          assign products_json = ''
+        -%}
+        [
+          {%- for p in collection_1.products -%}
+            {%- liquid
+              assign handle_key = '|' | append: p.handle | append: '|'
+              if seen_handles contains handle_key
+                continue
+              endif
+              assign seen_handles = seen_handles | append: p.handle | append: '|'
+
+              assign featured_image = p.featured_media.preview_image
+              if featured_image == blank
+                assign featured_image = p.featured_image
+              endif
+              assign img_url = ''
+              if featured_image != blank
+                assign img_url = featured_image | image_url: width: 900
+              endif
+              assign display_title = p.title
+              assign display_title_mf = blank
+              if dropdown_title_ns != blank and dropdown_title_key != blank
+                assign display_title_mf = p.metafields[dropdown_title_ns][dropdown_title_key]
+              endif
+              if display_title_mf != blank
+                capture display_title_value
+                  echo display_title_mf.value | default: display_title_mf
+                endcapture
+                assign display_title = display_title_value | strip | default: p.title
+              endif
+              assign desc_txt = p.description | strip_html | strip | truncate: 120
+              assign desc_mf = blank
+              if dropdown_subtitle_ns != blank and dropdown_subtitle_key != blank
+                assign desc_mf = p.metafields[dropdown_subtitle_ns][dropdown_subtitle_key]
+              endif
+              if desc_mf != blank
+                capture desc_value
+                  echo desc_mf.value | default: desc_mf
+                endcapture
+                assign desc_txt = desc_value | strip_html | strip | truncate: 120
+                if desc_txt == blank
+                  assign desc_txt = p.description | strip_html | strip | truncate: 120
+                endif
+              endif
+
+              capture fields_json
+                assign first_field = true
+                for block in section.blocks
+                  if block.type != 'compare_field'
+                    continue
+                  endif
+                  if first_field
+                    assign first_field = false
+                  else
+                    echo ','
+                  endif
+                  assign meta = block.settings.metafield | strip
+                  assign ns = ''
+                  assign key = ''
+                  if meta contains '.'
+                    assign parts = meta | split: '.'
+                    assign ns = parts[0]
+                    assign key = parts[1]
+                  endif
+                  assign mf = blank
+                  if ns != blank and key != blank
+                    assign mf = p.metafields[ns][key]
+                  endif
+                  capture mf_html
+                    if mf != blank or mf.value == false
+                      echo mf | metafield_tag
+                    else
+                      echo empty_field_label
+                    endif
+                  endcapture
+                  assign mf_html = mf_html | strip | strip_newlines
+                  assign mf_json = mf_html | json
+                  echo '"' | append: block.id | append: '":' | append: mf_json
+                endfor
+              endcapture
+
+              assign handle_json = p.handle | json
+              assign url_json = p.url | json
+              assign title_json = display_title | json
+              assign native_title_json = p.title | json
+              assign img_json = img_url | json
+              assign img_alt_json = featured_image.alt | default: p.title | json
+              assign desc_json = desc_txt | json
+              assign price_json = p.price | money | json
+              assign fields_json_clean = fields_json | strip | strip_newlines
+
+              capture product_entry
+                echo '{'
+                echo '"handle":' | append: handle_json | append: ','
+                echo '"url":' | append: url_json | append: ','
+                echo '"title":' | append: title_json | append: ','
+                echo '"native_title":' | append: native_title_json | append: ','
+                echo '"image":' | append: img_json | append: ','
+                echo '"image_alt":' | append: img_alt_json | append: ','
+                echo '"desc":' | append: desc_json | append: ','
+                echo '"price_html":' | append: price_json | append: ','
+                echo '"fields":{' | append: fields_json_clean | append: '}'
+                echo '}'
+              endcapture
+              assign product_entry_clean = product_entry | strip | strip_newlines
+
+              if products_json != blank
+                assign products_json = products_json | append: ','
+              endif
+              assign products_json = products_json | append: product_entry_clean
+            -%}
+          {%- endfor -%}
+
+          {%- for p in collection_2.products -%}
+            {%- liquid
+              assign handle_key = '|' | append: p.handle | append: '|'
+              if seen_handles contains handle_key
+                continue
+              endif
+              assign seen_handles = seen_handles | append: p.handle | append: '|'
+
+              assign featured_image = p.featured_media.preview_image
+              if featured_image == blank
+                assign featured_image = p.featured_image
+              endif
+              assign img_url = ''
+              if featured_image != blank
+                assign img_url = featured_image | image_url: width: 900
+              endif
+              assign display_title = p.title
+              assign display_title_mf = blank
+              if dropdown_title_ns != blank and dropdown_title_key != blank
+                assign display_title_mf = p.metafields[dropdown_title_ns][dropdown_title_key]
+              endif
+              if display_title_mf != blank
+                capture display_title_value
+                  echo display_title_mf.value | default: display_title_mf
+                endcapture
+                assign display_title = display_title_value | strip | default: p.title
+              endif
+              assign desc_txt = p.description | strip_html | strip | truncate: 120
+              assign desc_mf = blank
+              if dropdown_subtitle_ns != blank and dropdown_subtitle_key != blank
+                assign desc_mf = p.metafields[dropdown_subtitle_ns][dropdown_subtitle_key]
+              endif
+              if desc_mf != blank
+                capture desc_value
+                  echo desc_mf.value | default: desc_mf
+                endcapture
+                assign desc_txt = desc_value | strip_html | strip | truncate: 120
+                if desc_txt == blank
+                  assign desc_txt = p.description | strip_html | strip | truncate: 120
+                endif
+              endif
+
+              capture fields_json
+                assign first_field = true
+                for block in section.blocks
+                  if block.type != 'compare_field'
+                    continue
+                  endif
+                  if first_field
+                    assign first_field = false
+                  else
+                    echo ','
+                  endif
+                  assign meta = block.settings.metafield | strip
+                  assign ns = ''
+                  assign key = ''
+                  if meta contains '.'
+                    assign parts = meta | split: '.'
+                    assign ns = parts[0]
+                    assign key = parts[1]
+                  endif
+                  assign mf = blank
+                  if ns != blank and key != blank
+                    assign mf = p.metafields[ns][key]
+                  endif
+                  capture mf_html
+                    if mf != blank or mf.value == false
+                      echo mf | metafield_tag
+                    else
+                      echo empty_field_label
+                    endif
+                  endcapture
+                  assign mf_html = mf_html | strip | strip_newlines
+                  assign mf_json = mf_html | json
+                  echo '"' | append: block.id | append: '":' | append: mf_json
+                endfor
+              endcapture
+
+              assign handle_json = p.handle | json
+              assign url_json = p.url | json
+              assign title_json = display_title | json
+              assign native_title_json = p.title | json
+              assign img_json = img_url | json
+              assign img_alt_json = featured_image.alt | default: p.title | json
+              assign desc_json = desc_txt | json
+              assign price_json = p.price | money | json
+              assign fields_json_clean = fields_json | strip | strip_newlines
+
+              capture product_entry
+                echo '{'
+                echo '"handle":' | append: handle_json | append: ','
+                echo '"url":' | append: url_json | append: ','
+                echo '"title":' | append: title_json | append: ','
+                echo '"native_title":' | append: native_title_json | append: ','
+                echo '"image":' | append: img_json | append: ','
+                echo '"image_alt":' | append: img_alt_json | append: ','
+                echo '"desc":' | append: desc_json | append: ','
+                echo '"price_html":' | append: price_json | append: ','
+                echo '"fields":{' | append: fields_json_clean | append: '}'
+                echo '}'
+              endcapture
+              assign product_entry_clean = product_entry | strip | strip_newlines
+
+              if products_json != blank
+                assign products_json = products_json | append: ','
+              endif
+              assign products_json = products_json | append: product_entry_clean
+            -%}
+          {%- endfor -%}
+
+          {%- if collection_3 != blank -%}
+            {%- for p in collection_3.products -%}
+              {%- liquid
+                assign handle_key = '|' | append: p.handle | append: '|'
+                if seen_handles contains handle_key
+                  continue
+                endif
+                assign seen_handles = seen_handles | append: p.handle | append: '|'
+
+                assign featured_image = p.featured_media.preview_image
+                if featured_image == blank
+                  assign featured_image = p.featured_image
+                endif
+                assign img_url = ''
+                if featured_image != blank
+                  assign img_url = featured_image | image_url: width: 900
+                endif
+                assign display_title = p.title
+                assign display_title_mf = blank
+                if dropdown_title_ns != blank and dropdown_title_key != blank
+                  assign display_title_mf = p.metafields[dropdown_title_ns][dropdown_title_key]
+                endif
+                if display_title_mf != blank
+                  capture display_title_value
+                    echo display_title_mf.value | default: display_title_mf
+                  endcapture
+                  assign display_title = display_title_value | strip | default: p.title
+                endif
+                assign desc_txt = p.description | strip_html | strip | truncate: 120
+                assign desc_mf = blank
+                if dropdown_subtitle_ns != blank and dropdown_subtitle_key != blank
+                  assign desc_mf = p.metafields[dropdown_subtitle_ns][dropdown_subtitle_key]
+                endif
+                if desc_mf != blank
+                  capture desc_value
+                    echo desc_mf.value | default: desc_mf
+                  endcapture
+                  assign desc_txt = desc_value | strip_html | strip | truncate: 120
+                  if desc_txt == blank
+                    assign desc_txt = p.description | strip_html | strip | truncate: 120
+                  endif
+                endif
+
+                capture fields_json
+                  assign first_field = true
+                  for block in section.blocks
+                    if block.type != 'compare_field'
+                      continue
+                    endif
+                    if first_field
+                      assign first_field = false
+                    else
+                      echo ','
+                    endif
+                    assign meta = block.settings.metafield | strip
+                    assign ns = ''
+                    assign key = ''
+                    if meta contains '.'
+                      assign parts = meta | split: '.'
+                      assign ns = parts[0]
+                      assign key = parts[1]
+                    endif
+                    assign mf = blank
+                    if ns != blank and key != blank
+                      assign mf = p.metafields[ns][key]
+                    endif
+                    capture mf_html
+                      if mf != blank or mf.value == false
+                        echo mf | metafield_tag
+                      else
+                        echo empty_field_label
+                      endif
+                    endcapture
+                    assign mf_html = mf_html | strip | strip_newlines
+                    assign mf_json = mf_html | json
+                    echo '"' | append: block.id | append: '":' | append: mf_json
+                  endfor
+                endcapture
+
+                assign handle_json = p.handle | json
+                assign url_json = p.url | json
+                assign title_json = display_title | json
+                assign native_title_json = p.title | json
+                assign img_json = img_url | json
+                assign img_alt_json = featured_image.alt | default: p.title | json
+                assign desc_json = desc_txt | json
+                assign price_json = p.price | money | json
+                assign fields_json_clean = fields_json | strip | strip_newlines
+
+                capture product_entry
+                  echo '{'
+                  echo '"handle":' | append: handle_json | append: ','
+                  echo '"url":' | append: url_json | append: ','
+                  echo '"title":' | append: title_json | append: ','
+                  echo '"native_title":' | append: native_title_json | append: ','
+                  echo '"image":' | append: img_json | append: ','
+                  echo '"image_alt":' | append: img_alt_json | append: ','
+                  echo '"desc":' | append: desc_json | append: ','
+                  echo '"price_html":' | append: price_json | append: ','
+                  echo '"fields":{' | append: fields_json_clean | append: '}'
+                  echo '}'
+                endcapture
+                assign product_entry_clean = product_entry | strip | strip_newlines
+
+                if products_json != blank
+                  assign products_json = products_json | append: ','
+                endif
+                assign products_json = products_json | append: product_entry_clean
+              -%}
+            {%- endfor -%}
+          {%- endif -%}
+
+          {{- products_json -}}
+        ]
+      </script>
+    {% endunless %}
+  </div>
+
+  <style>
+    .compare-picker--{{ uid }} {
+      --vp-s: 1px;
+      --boolean-icon-size: calc({{ section.settings.boolean_icon_size_desktop | default: 24 }} * var(--vp-s));
+      --boolean-icon-true-color: {{ section.settings.boolean_icon_true_color | default: '#16a05d' }};
+      --boolean-icon-false-color: {{ section.settings.boolean_icon_false_color | default: '#ff3b30' }};
+      padding: calc({{ section.settings.padding_desktop }} * var(--vp-s)) 0;
+      background: {{ section.settings.bg }};
+      color: {{ section.settings.text_color }};
+    }
+    @media screen and (min-width: 850px) and (max-width: 1500px) {
+      .compare-picker--{{ uid }} {
+        --vp-s: calc(100vw / 1500);
+      }
+    }
+    @media screen and (max-width: 849px) {
+      .compare-picker--{{ uid }} {
+        --vp-s: calc(100vw / 375);
+        --boolean-icon-size: calc({{ section.settings.boolean_icon_size_mobile | default: 22 }} * var(--vp-s));
+        padding: calc({{ section.settings.padding_mobile }} * var(--vp-s)) 0;
+      }
+    }
+    .compare-picker--{{ uid }} .compare-picker__container {
+      max-width: calc({{ section.settings.max_width }} * var(--vp-s));
+      margin: 0 auto;
+      padding: 0 calc(16 * var(--vp-s));
+    }
+    .compare-picker--{{ uid }} .compare-picker__heading {
+      margin: 0 0 calc(16 * var(--vp-s)) 0;
+      font-size: calc({{ section.settings.heading_size_desktop }} * var(--vp-s));
+      line-height: 1.15;
+      font-weight: 800;
+      color: {{ section.settings.heading_color }};
+      text-align: {{ section.settings.heading_alignment | default: 'left' }};
+    }
+    @media screen and (max-width: 849px) {
+      .compare-picker--{{ uid }} .compare-picker__heading {
+        font-size: calc({{ section.settings.heading_size_mobile }} * var(--vp-s));
+        margin-bottom: calc(12 * var(--vp-s));
+      }
+    }
+    .compare-picker--{{ uid }} .compare-picker__empty {
+      padding: calc(16 * var(--vp-s));
+      border-radius: calc(12 * var(--vp-s));
+      background: rgba(0,0,0,0.04);
+      color: inherit;
+    }
+    .compare-picker--{{ uid }} .compare-picker__scroll {
+      width: 100%;
+    }
+    @media screen and (max-width: 849px) {
+      .compare-picker--{{ uid }} .compare-picker__scroll {
+        overflow-x: auto;
+        overflow-y: visible;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .compare-picker--{{ uid }} .compare-picker__scroll::-webkit-scrollbar {
+        display: none;
+      }
+      .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__scroll {
+        overflow-x: visible;
+      }
+    }
+
+    .compare-picker--{{ uid }} .compare-picker__selectors {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: calc(16 * var(--vp-s));
+      margin-bottom: calc(18 * var(--vp-s));
+    }
+    .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__selectors {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__selector--desktop,
+    .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__card--desktop,
+    .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__cell--desktop {
+      display: none;
+    }
+    @media screen and (max-width: 849px) {
+      .compare-picker--{{ uid }} .compare-picker__selectors {
+        gap: calc(12 * var(--vp-s));
+        margin-bottom: calc(14 * var(--vp-s));
+        grid-template-columns: repeat(3, calc((100% - calc(13.2 * var(--vp-s))) / 2.1));
+      }
+      .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__selectors {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .compare-picker--{{ uid }} .compare-picker__selector {
+        scroll-snap-align: start;
+      }
+    }
+    .compare-picker--{{ uid }} .compare-picker__select {
+      width: 100%;
+      height: calc(44 * var(--vp-s));
+      border-radius: calc(12 * var(--vp-s));
+      border: calc(1 * var(--vp-s)) solid rgba(0,0,0,0.12);
+      padding: 0 calc(14 * var(--vp-s));
+      background: #fff;
+      color: #111;
+      font-weight: 600;
+      padding-right: calc(40 * var(--vp-s));
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7 10l5 5 5-5' stroke='%23111' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right calc(14 * var(--vp-s)) center;
+      background-size: calc(14 * var(--vp-s)) calc(14 * var(--vp-s));
+    }
+    .compare-picker--{{ uid }}.compare-picker--custom-selects .compare-picker__select {
+      display: none;
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-select {
+      position: relative;
+      width: 100%;
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-trigger {
+      width: 100%;
+      height: calc(44 * var(--vp-s));
+      border-radius: calc(4 * var(--vp-s));
+      border: calc(1 * var(--vp-s)) solid rgba(0,0,0,0.28);
+      padding: 0 calc(38 * var(--vp-s)) 0 calc(14 * var(--vp-s));
+      background: #fff;
+      color: #1f2933;
+      font-size: calc(14 * var(--vp-s));
+      line-height: 1.2;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-trigger::after {
+      content: "";
+      position: absolute;
+      right: calc(14 * var(--vp-s));
+      top: 50%;
+      width: calc(8 * var(--vp-s));
+      height: calc(8 * var(--vp-s));
+      border-right: calc(1.5 * var(--vp-s)) solid #606975;
+      border-bottom: calc(1.5 * var(--vp-s)) solid #606975;
+      transform: translateY(-65%) rotate(45deg);
+      transition: transform 0.18s ease;
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-select.is-open .compare-picker__custom-trigger {
+      border-color: rgba(0,0,0,0.42);
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-select.is-open .compare-picker__custom-trigger::after {
+      transform: translateY(-35%) rotate(225deg);
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-menu {
+      position: absolute;
+      z-index: 20;
+      top: calc(48 * var(--vp-s));
+      left: 0;
+      right: 0;
+      max-height: calc(270 * var(--vp-s));
+      overflow-y: auto;
+      border: calc(1 * var(--vp-s)) solid rgba(0,0,0,0.16);
+      border-radius: calc(3 * var(--vp-s));
+      background: #fff;
+      box-shadow: 0 calc(12 * var(--vp-s)) calc(28 * var(--vp-s)) rgba(0,0,0,0.14);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(calc(-4 * var(--vp-s)));
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-select.is-open .compare-picker__custom-menu {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-group {
+      padding: calc(10 * var(--vp-s)) calc(12 * var(--vp-s)) calc(8 * var(--vp-s));
+      border-bottom: calc(1 * var(--vp-s)) solid rgba(0,0,0,0.08);
+      color: #66717d;
+      font-size: calc(11 * var(--vp-s));
+      line-height: 1.2;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-option {
+      width: 100%;
+      min-height: calc(56 * var(--vp-s));
+      padding: calc(8 * var(--vp-s)) calc(12 * var(--vp-s));
+      display: grid;
+      grid-template-columns: calc(40 * var(--vp-s)) minmax(0, 1fr);
+      gap: calc(10 * var(--vp-s));
+      align-items: center;
+      border: 0;
+      background: #fff;
+      color: #111;
+      text-align: left;
+      cursor: pointer;
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-option:hover,
+    .compare-picker--{{ uid }} .compare-picker__custom-option.is-selected {
+      background: #e9e9e9;
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-thumb {
+      width: calc(40 * var(--vp-s));
+      height: calc(40 * var(--vp-s));
+      border-radius: calc(3 * var(--vp-s));
+      background: #f2f2f2;
+      object-fit: contain;
+      display: block;
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: calc(14 * var(--vp-s));
+      line-height: 1.25;
+      font-weight: 400;
+      color: #111;
+    }
+    .compare-picker--{{ uid }} .compare-picker__custom-desc {
+      margin-top: calc(2 * var(--vp-s));
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: calc(12 * var(--vp-s));
+      line-height: 1.25;
+      font-weight: 400;
+      color: #4f5f6f;
+    }
+    @media screen and (max-width: 849px) {
+      .compare-picker--{{ uid }} .compare-picker__custom-menu {
+        max-height: calc(230 * var(--vp-s));
+      }
+      .compare-picker--{{ uid }} .compare-picker__custom-trigger {
+        font-size: calc(13 * var(--vp-s));
+      }
+    }
+
+    .compare-picker--{{ uid }} .compare-picker__cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: calc(16 * var(--vp-s));
+      margin-bottom: 0;
+    }
+    .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media screen and (max-width: 849px) {
+      .compare-picker--{{ uid }} .compare-picker__cards {
+        grid-template-columns: repeat(3, calc((100% - calc(13.2 * var(--vp-s))) / 2.1));
+        gap: calc(12 * var(--vp-s));
+        overflow-y: visible;
+      }
+      .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .compare-picker--{{ uid }} .compare-picker__card {
+        scroll-snap-align: start;
+      }
+    }
+    .compare-picker--{{ uid }} .compare-picker__card {
+      background: transparent;
+      border: 0;
+      overflow: visible;
+    }
+    .compare-picker--{{ uid }} .compare-picker__card-media {
+      display: block;
+      aspect-ratio: 1 / 1;
+      border-radius: calc(6 * var(--vp-s));
+      background: #f7f7f7;
+      overflow: hidden;
+    }
+    .compare-picker--{{ uid }} .compare-picker__card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .compare-picker--{{ uid }} .compare-picker__card-body {
+      padding: calc(14 * var(--vp-s)) calc(14 * var(--vp-s)) calc(24 * var(--vp-s));
+      display: grid;
+      gap: calc(8 * var(--vp-s));
+      text-align: center;
+    }
+    .compare-picker--{{ uid }} .compare-picker__card-title {
+      font-weight: 800;
+      font-size: calc(16 * var(--vp-s));
+      line-height: 1.2;
+      color: #000;
+      text-decoration: none;
+    }
+    .compare-picker--{{ uid }} .compare-picker__card-price {
+      font-size: calc(14 * var(--vp-s));
+      font-weight: 400;
+      line-height: 1.35;
+      color: {{ section.settings.text_color }};
+    }
+    .compare-picker--{{ uid }} .compare-picker__card-buy {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(20 * var(--vp-s));
+      padding: 0;
+      background: transparent;
+      color: rgba(0,0,0,0.68);
+      font-size: calc(13 * var(--vp-s));
+      line-height: 1.35;
+      font-weight: 400;
+      text-decoration: underline;
+      text-underline-offset: calc(2 * var(--vp-s));
+      margin: calc(2 * var(--vp-s)) auto 0 auto;
+      width: fit-content;
+    }
+
+    .compare-picker--{{ uid }} .compare-picker__table {
+      width: 100%;
+      border-top: calc(1 * var(--vp-s)) solid rgba(0,0,0,0.12);
+    }
+    .compare-picker--{{ uid }} .compare-picker__table-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      border-top: calc(1 * var(--vp-s)) solid rgba(0,0,0,0.06);
+    }
+    .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__table-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .compare-picker--{{ uid }} .compare-picker__table-row:first-child {
+      border-top: 0;
+    }
+    @media screen and (max-width: 849px) {
+      .compare-picker--{{ uid }} .compare-picker__table {
+        width: calc((100% - calc(13.2 * var(--vp-s))) / 2.1 * 3 + calc(24 * var(--vp-s)));
+      }
+      .compare-picker--{{ uid }} .compare-picker__table-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__table-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .compare-picker--{{ uid }}.has-third-collection--false .compare-picker__table {
+        width: 100%;
+      }
+      .compare-picker--{{ uid }} .compare-picker__cell {
+        scroll-snap-align: start;
+      }
+    }
+    .compare-picker--{{ uid }} .compare-picker__cell {
+      min-height: calc(74 * var(--vp-s));
+      padding: calc(14 * var(--vp-s));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #111;
+      font-size: calc(14 * var(--vp-s));
+      line-height: 1.35;
+    }
+    .compare-picker--{{ uid }} .compare-picker__table-body .compare-picker__table-row:nth-child(even) {
+      background: rgba(0,0,0,0.02);
+    }
+    .compare-picker--{{ uid }} .compare-picker__field-value {
+      font-weight: 800;
+      color: #000;
+    }
+    .compare-picker--{{ uid }} .compare-picker__field-value--boolean {
+      line-height: 1;
+    }
+    .compare-picker--{{ uid }} .compare-picker__boolean-icon {
+      width: var(--boolean-icon-size);
+      height: var(--boolean-icon-size);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      vertical-align: middle;
+    }
+    .compare-picker--{{ uid }} .compare-picker__boolean-icon svg,
+    .compare-picker--{{ uid }} .compare-picker__boolean-icon img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .compare-picker--{{ uid }} .compare-picker__boolean-icon svg {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .compare-picker--{{ uid }} .compare-picker__boolean-icon--true {
+      color: var(--boolean-icon-true-color);
+    }
+    .compare-picker--{{ uid }} .compare-picker__boolean-icon--false {
+      color: var(--boolean-icon-false-color);
+    }
+    .compare-picker--{{ uid }} .compare-picker__field-label {
+      margin-top: calc(4 * var(--vp-s));
+      font-size: calc(12 * var(--vp-s));
+      line-height: 1.35;
+      font-weight: 400;
+      color: rgba(0,0,0,0.46);
+    }
+    .compare-picker--{{ uid }} .compare-picker__swatches {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: calc(8 * var(--vp-s));
+      line-height: 1;
+    }
+    .compare-picker--{{ uid }} .compare-picker__swatch {
+      width: calc(18 * var(--vp-s));
+      height: calc(18 * var(--vp-s));
+      border-radius: 999px;
+      background: var(--swatch);
+      border: calc(1 * var(--vp-s)) solid rgba(0,0,0,0.14);
+      box-shadow: inset 0 0 0 calc(1 * var(--vp-s)) rgba(255,255,255,0.5);
+    }
+  </style>
+
+  {% if has_required_collections %}
+    <script>
+      (function () {
+        var root = document.querySelector('.compare-picker--{{ uid }}');
+        if (!root || root.getAttribute('data-compare-inited') === 'true') return;
+        root.setAttribute('data-compare-inited', 'true');
+
+        var dataEl = root.querySelector('[data-compare-products-json]');
+        if (!dataEl) return;
+        var list = [];
+        try { list = JSON.parse(dataEl.textContent || '[]'); } catch (e) { list = []; }
+        if (!Array.isArray(list) || !list.length) return;
+
+        var map = {};
+        list.forEach(function (p) { if (p && p.handle) map[p.handle] = p; });
+
+        var selects = Array.prototype.slice.call(root.querySelectorAll('[data-selectors] select[data-slot]'));
+        var fieldCells = Array.prototype.slice.call(root.querySelectorAll('[data-slot-cell][data-field-id]'));
+        var cards = Array.prototype.slice.call(root.querySelectorAll('[data-slot-card]'));
+        var pricePrefix = {{ section.settings.price_prefix | default: 'Starting at' | json }};
+        var trueIconImage = {% if section.settings.boolean_icon_true_image != blank %}{{ section.settings.boolean_icon_true_image | image_url: width: 96 | json }}{% else %}''{% endif %};
+        var falseIconImage = {% if section.settings.boolean_icon_false_image != blank %}{{ section.settings.boolean_icon_false_image | image_url: width: 96 | json }}{% else %}''{% endif %};
+        root.classList.add('compare-picker--custom-selects');
+
+        function closeCustomPickers(except) {
+          root.querySelectorAll('.compare-picker__custom-select.is-open').forEach(function (picker) {
+            if (except && picker === except) return;
+            picker.classList.remove('is-open');
+            var button = picker.querySelector('.compare-picker__custom-trigger');
+            if (button) button.setAttribute('aria-expanded', 'false');
+          });
+        }
+
+        function syncCustomPicker(selectEl) {
+          if (!selectEl || !selectEl.comparePickerCustom) return;
+          var custom = selectEl.comparePickerCustom;
+          var selectedProduct = map[selectEl.value];
+          var selectedText = selectedProduct ? (selectedProduct.title || selectedProduct.native_title || '') : '';
+          if (!selectedText && selectEl.selectedOptions && selectEl.selectedOptions.length) {
+            selectedText = selectEl.selectedOptions[0].textContent || '';
+          }
+          custom.button.textContent = selectedText || 'Select Product';
+          custom.options.forEach(function (optionButton) {
+            var isSelected = optionButton.getAttribute('data-value') === selectEl.value;
+            optionButton.classList.toggle('is-selected', isSelected);
+            optionButton.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+          });
+        }
+
+        function buildCustomPicker(selectEl) {
+          if (!selectEl || selectEl.comparePickerCustom) return;
+          var selector = selectEl.closest('.compare-picker__selector');
+          if (!selector) return;
+          var pickerId = 'compare-picker-list-{{ uid }}-' + selectEl.getAttribute('data-slot');
+          var custom = document.createElement('div');
+          var button = document.createElement('button');
+          var menu = document.createElement('div');
+          var group = document.createElement('div');
+          var optionButtons = [];
+
+          custom.className = 'compare-picker__custom-select';
+          button.className = 'compare-picker__custom-trigger';
+          button.type = 'button';
+          button.setAttribute('aria-haspopup', 'listbox');
+          button.setAttribute('aria-expanded', 'false');
+          button.setAttribute('aria-controls', pickerId);
+          button.disabled = selectEl.disabled;
+          menu.className = 'compare-picker__custom-menu';
+          menu.id = pickerId;
+          menu.setAttribute('role', 'listbox');
+          group.className = 'compare-picker__custom-group';
+          group.textContent = selector.getAttribute('data-picker-label') || 'Select Product';
+          menu.appendChild(group);
+
+          Array.prototype.slice.call(selectEl.options).forEach(function (option) {
+            if (!option.value) return;
+            var product = map[option.value] || {};
+            var optionButton = document.createElement('button');
+            var thumb = document.createElement('img');
+            var text = document.createElement('div');
+            var title = document.createElement('div');
+            var desc = document.createElement('div');
+
+            optionButton.className = 'compare-picker__custom-option';
+            optionButton.type = 'button';
+            optionButton.setAttribute('role', 'option');
+            optionButton.setAttribute('data-value', option.value);
+            thumb.className = 'compare-picker__custom-thumb';
+            thumb.loading = 'lazy';
+            thumb.width = 80;
+            thumb.height = 80;
+            thumb.src = product.image || '';
+            thumb.alt = product.image_alt || product.title || product.native_title || option.textContent || '';
+            title.className = 'compare-picker__custom-title';
+            title.textContent = product.title || product.native_title || option.textContent || '';
+            desc.className = 'compare-picker__custom-desc';
+            desc.textContent = product.desc || '';
+
+            text.appendChild(title);
+            if (desc.textContent) text.appendChild(desc);
+            optionButton.appendChild(thumb);
+            optionButton.appendChild(text);
+            optionButton.addEventListener('click', function () {
+              selectEl.value = option.value;
+              syncCustomPicker(selectEl);
+              updateSlot(parseInt(selectEl.getAttribute('data-slot'), 10), selectEl.value);
+              closeCustomPickers();
+            });
+            menu.appendChild(optionButton);
+            optionButtons.push(optionButton);
+          });
+
+          button.addEventListener('click', function () {
+            if (button.disabled) return;
+            var willOpen = !custom.classList.contains('is-open');
+            closeCustomPickers(custom);
+            custom.classList.toggle('is-open', willOpen);
+            button.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+          });
+
+          custom.appendChild(button);
+          custom.appendChild(menu);
+          selector.appendChild(custom);
+          selectEl.comparePickerCustom = { button: button, options: optionButtons };
+          syncCustomPicker(selectEl);
+        }
+
+        function setCard(slot, product) {
+          var card = cards.find(function (c) { return String(c.getAttribute('data-slot-card')) === String(slot); });
+          if (!card) return;
+          var img = card.querySelector('[data-slot-img]');
+          var title = card.querySelector('[data-slot-title]');
+          var price = card.querySelector('[data-slot-price]');
+          var buy = card.querySelector('[data-slot-buy]');
+          var link = card.querySelector('[data-slot-link]');
+          var textLink = card.querySelector('[data-slot-link-text]');
+
+          if (img) {
+            img.src = product.image || '';
+            img.alt = product.image_alt || product.native_title || product.title || '';
+          }
+          if (title) title.textContent = product.native_title || product.title || '';
+          if (price) price.innerHTML = (pricePrefix ? pricePrefix + ' ' : '') + (product.price_html || '');
+          if (buy) buy.href = product.url || '#';
+          if (link) link.href = product.url || '#';
+          if (textLink) textLink.href = product.url || '#';
+        }
+
+        function parseHexList(text) {
+          if (!text) return null;
+          var parts = text.split(/[,\/]\s*/).filter(function (p) { return !!p; });
+          if (!parts.length) return null;
+          var re = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+          for (var i = 0; i < parts.length; i++) {
+            if (!re.test(parts[i])) return null;
+          }
+          return parts;
+        }
+
+        function applyColorSwatches(cell) {
+          if (!cell) return;
+          var txt = (cell.textContent || '').replace(/\s+/g, ' ').trim();
+          if (!txt) return;
+          if (txt === '{{ empty_field_label | escape }}') return;
+          var parts = parseHexList(txt);
+          if (!parts) return;
+
+          var html = '<span class="compare-picker__swatches" aria-hidden="true">';
+          for (var i = 0; i < parts.length; i++) {
+            html += '<span class="compare-picker__swatch" style="--swatch:' + parts[i] + '"></span>';
+          }
+          html += '</span><span class="visually-hidden">' + txt + '</span>';
+          cell.innerHTML = html;
+        }
+
+        function getPlainFieldText(html) {
+          var temp = document.createElement('div');
+          temp.innerHTML = html || '';
+          return (temp.textContent || temp.innerText || '').replace(/\s+/g, ' ').trim();
+        }
+
+        function getBooleanFieldValue(html) {
+          var txt = getPlainFieldText(html).toLowerCase();
+          if (txt === 'true') return true;
+          if (txt === 'false') return false;
+          return null;
+        }
+
+        function getBooleanIconHtml(value) {
+          var isTrue = value === true;
+          var iconUrl = isTrue ? trueIconImage : falseIconImage;
+          var className = isTrue ? 'compare-picker__boolean-icon--true' : 'compare-picker__boolean-icon--false';
+          var label = isTrue ? 'true' : 'false';
+          var iconHtml = '';
+
+          if (iconUrl) {
+            iconHtml = '<img src="' + escapeHtml(iconUrl) + '" alt="" loading="lazy">';
+          } else if (isTrue) {
+            iconHtml = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"></path></svg>';
+          } else {
+            iconHtml = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"></path></svg>';
+          }
+
+          return '<span class="compare-picker__boolean-icon ' + className + '" aria-hidden="true">' + iconHtml + '</span><span class="visually-hidden">' + label + '</span>';
+        }
+
+        function escapeHtml(text) {
+          return String(text || '').replace(/[&<>"']/g, function (ch) {
+            return {
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;'
+            }[ch];
+          });
+        }
+
+        function setFields(slot, product) {
+          fieldCells.forEach(function (c) {
+            if (String(c.getAttribute('data-slot-cell')) !== String(slot)) return;
+            var fieldId = c.getAttribute('data-field-id');
+            var val = product.fields && fieldId ? product.fields[fieldId] : '';
+            var label = c.getAttribute('data-field-label') || '';
+            var booleanValue = getBooleanFieldValue(val);
+            var valueClass = booleanValue === null ? 'compare-picker__field-value' : 'compare-picker__field-value compare-picker__field-value--boolean';
+            var valueHtml = booleanValue === null ? (val || '') : getBooleanIconHtml(booleanValue);
+            c.innerHTML = '<div class="' + valueClass + '">' + valueHtml + '</div><div class="compare-picker__field-label">' + escapeHtml(label) + '</div>';
+            if (booleanValue === null) {
+              applyColorSwatches(c.querySelector('.compare-picker__field-value'));
+            }
+          });
+        }
+
+        function updateSlot(slot, handle) {
+          var p = map[handle];
+          if (!p) return;
+          setCard(slot, p);
+          setFields(slot, p);
+        }
+
+        function ensureSelection(selectEl) {
+          if (!selectEl) return;
+          if (selectEl.disabled) return;
+          if (selectEl.value) return;
+          if (selectEl.options && selectEl.options.length) {
+            selectEl.selectedIndex = 0;
+          }
+        }
+
+        selects.forEach(function (sel) {
+          var slot = parseInt(sel.getAttribute('data-slot'), 10);
+          ensureSelection(sel);
+          buildCustomPicker(sel);
+          sel.addEventListener('change', function () {
+            syncCustomPicker(sel);
+            updateSlot(slot, sel.value);
+          });
+        });
+
+        document.addEventListener('click', function (event) {
+          if (root.contains(event.target)) return;
+          closeCustomPickers();
+        });
+
+        root.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape') closeCustomPickers();
+        });
+
+        selects.forEach(function (sel) {
+          var slot = parseInt(sel.getAttribute('data-slot'), 10);
+          syncCustomPicker(sel);
+          updateSlot(slot, sel.value);
+        });
+      })();
+    </script>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Compare picker",
+  "class": "section-compare-picker",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Compare" },
+    { "type": "range", "id": "heading_size_desktop", "label": "Heading size (desktop)", "min": 16, "max": 64, "step": 1, "unit": "px", "default": 32 },
+    { "type": "range", "id": "heading_size_mobile", "label": "Heading size (mobile)", "min": 14, "max": 44, "step": 1, "unit": "px", "default": 24 },
+    { "type": "color", "id": "heading_color", "label": "Heading color", "default": "#111111" },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ]
+    },
+    { "type": "collection", "id": "collection_1", "label": "Collection 1" },
+    { "type": "product", "id": "default_product_1", "label": "Default product for Collection 1", "info": "Choose a product that belongs to Collection 1." },
+    { "type": "collection", "id": "collection_2", "label": "Collection 2" },
+    { "type": "product", "id": "default_product_2", "label": "Default product for Collection 2", "info": "Choose a product that belongs to Collection 2." },
+    { "type": "collection", "id": "collection_3", "label": "Collection 3 (desktop)" },
+    { "type": "product", "id": "default_product_3", "label": "Default product for Collection 3 (desktop)", "info": "Choose a product that belongs to Collection 3." },
+    { "type": "text", "id": "empty_collection_text", "label": "Empty state text", "default": "Please select collection 1 and collection 2." },
+    { "type": "text", "id": "buy_label", "label": "Buy label", "default": "Buy Now" },
+    { "type": "text", "id": "price_prefix", "label": "Price prefix", "default": "Starting at" },
+    { "type": "text", "id": "table_label", "label": "Table label", "default": "Compare parameters" },
+    { "type": "text", "id": "table_left_label", "label": "Left header", "default": "Parameters" },
+    { "type": "text", "id": "empty_field_label", "label": "Empty field label", "default": "N/A" },
+    { "type": "text", "id": "dropdown_title_metafield", "label": "Dropdown title metafield (namespace.key)", "default": "custom.compare_title", "info": "Fallback: product title." },
+    { "type": "text", "id": "dropdown_subtitle_metafield", "label": "Dropdown subtitle metafield (namespace.key)", "default": "custom.compare_subtitle", "info": "Fallback: product description." },
+    { "type": "image_picker", "id": "boolean_icon_true_image", "label": "True icon image" },
+    { "type": "image_picker", "id": "boolean_icon_false_image", "label": "False icon image" },
+    { "type": "color", "id": "boolean_icon_true_color", "label": "True icon color", "default": "#16a05d" },
+    { "type": "color", "id": "boolean_icon_false_color", "label": "False icon color", "default": "#ff3b30" },
+    { "type": "range", "id": "boolean_icon_size_desktop", "label": "Boolean icon size (desktop)", "min": 12, "max": 48, "step": 1, "unit": "px", "default": 24 },
+    { "type": "range", "id": "boolean_icon_size_mobile", "label": "Boolean icon size (mobile)", "min": 12, "max": 40, "step": 1, "unit": "px", "default": 22 },
+    { "type": "color_background", "id": "bg", "label": "Background", "default": "#ffffff" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#111111" },
+    { "type": "color", "id": "price_color", "label": "Price color", "default": "#ff5a00" },
+    { "type": "color", "id": "buy_bg", "label": "Buy background", "default": "#00b67a" },
+    { "type": "color", "id": "buy_color", "label": "Buy text", "default": "#ffffff" },
+    { "type": "range", "id": "max_width", "label": "Max width", "min": 800, "max": 1600, "step": 20, "unit": "px", "default": 1200 },
+    { "type": "range", "id": "padding_desktop", "label": "Padding (desktop)", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_mobile", "label": "Padding (mobile)", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 24 }
+  ],
+  "blocks": [
+    {
+      "type": "compare_field",
+      "name": "Field",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Weight Capacity" },
+        { "type": "text", "id": "metafield", "label": "Metafield (namespace.key)", "default": "custom.weight_capacity" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Compare picker",
+      "blocks": [
+        { "type": "compare_field" },
+        { "type": "compare_field" },
+        { "type": "compare_field" }
+      ]
+    }
+  ]
+}
+{% endschema %}

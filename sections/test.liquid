@@ -1,0 +1,251 @@
+
+{{ 'flash-deals.css' | asset_url | stylesheet_tag }}
+
+<section class="flash-sale">
+    <div class="page-width">
+
+        <div class="flash-sale__heading">
+
+            <h2>{{ section.settings.title }}</h2>
+
+            <p>{{ section.settings.desc }}</p>
+
+            <div
+                class="countdown"
+                data-date="{{ section.settings.end_time }}">
+            </div>
+
+        </div>
+
+        <div class="flash-sale__card">
+
+            <div class="flash-sale__left">
+
+                {% if section.settings.banner %}
+                    <img
+                        src="{{ section.settings.banner | image_url: width:1200 }}"
+                        loading="lazy"
+                        alt="">
+                {% endif %}
+
+                <span class="discount">
+                    {{ section.settings.discount }}
+                </span>
+
+            </div>
+
+            <div class="flash-sale__right">
+
+                <h3>{{ section.settings.card_title }}</h3>
+
+                <p>{{ section.settings.card_desc }}</p>
+
+                <div class="gift-list">
+
+                    {% for block in section.blocks %}
+
+                        {% assign product = block.settings.product %}
+
+                        <div class="gift-item">
+
+                            {{
+                                product.featured_image
+                                | image_url: width:120
+                                | image_tag
+                            }}
+
+                            <div>
+
+                                <h4>{{ product.title }}</h4>
+
+                                <span>{{ product.price | money }}</span>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <div class="progress">
+
+                    <span>{{ section.settings.sold_text }}</span>
+
+                    <div class="bar">
+                        <div
+                            class="bar-fill"
+                            style="width:{{ section.settings.progress }}%">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="bottom">
+
+                    <div class="price">
+
+                        <span class="sale">
+                            {{ section.settings.sale_price }}
+                        </span>
+
+                        <del>{{ section.settings.compare_price }}</del>
+
+                    </div>
+
+                    <a
+                        href="{{ section.settings.button_link }}"
+                        class="button">
+
+                        {{ section.settings.button }}
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<script>
+document.querySelectorAll('.countdown').forEach(function(el){
+
+    let end=new Date(el.dataset.date).getTime();
+
+    function update(){
+
+        let now=new Date().getTime();
+
+        let d=end-now;
+
+        if(d<0)return;
+
+        let days=Math.floor(d/86400000);
+
+        let hours=Math.floor((d%86400000)/3600000);
+
+        let mins=Math.floor((d%3600000)/60000);
+
+        let sec=Math.floor((d%60000)/1000);
+
+        el.innerHTML=`
+            <div>${days}<span>Days</span></div>
+            <div>${hours}<span>Hours</span></div>
+            <div>${mins}<span>Minutes</span></div>
+            <div>${sec}<span>Seconds</span></div>
+        `;
+    }
+
+    update();
+
+    setInterval(update,1000);
+
+});
+</script>
+
+{% schema %}
+{
+  "name":"Flash Deals",
+  "settings":[
+    {
+      "type":"text",
+      "id":"title",
+      "label":"Title",
+      "default":"Flash Deals"
+    },
+    {
+      "type":"textarea",
+      "id":"desc",
+      "label":"Description"
+    },
+    {
+      "type":"text",
+      "id":"end_time",
+      "label":"Countdown",
+      "default":"2026-12-31T23:59:59"
+    },
+    {
+      "type":"image_picker",
+      "id":"banner",
+      "label":"Banner"
+    },
+    {
+      "type":"text",
+      "label":"dis",
+      "id":"discount",
+      "default":"20% OFF"
+    },
+    {
+      "type":"text",
+      "id":"card_title",
+      "label":"card",
+      "default":"Easter Flash Sale"
+    },
+    {
+      "type":"textarea",
+      "id":"card_desc",
+      "label":"desc",
+    },
+    {
+      "type":"text",
+      "id":"sold_text",
+      "label":"sold",
+      "default":"99% Sold"
+    },
+    {
+      "type":"range",
+      "id":"progress",
+       "label":"progress",
+      "min":0,
+      "max":100,
+      "step":1,
+      "default":90
+    },
+    {
+      "type":"text",
+      "id":"sale_price",
+      "label":"sale",
+      "default":"$344"
+    },
+    {
+      "type":"text",
+      "id":"compare_price",
+      "label":"compare",
+      "default":"$516"
+    },
+    {
+      "type":"text",
+      "id":"button",
+      "label":"button",
+      "default":"Shop Now"
+    },
+    {
+      "type":"url",
+      "id":"button_link",
+      "label":"link",
+      "label":"Button Link"
+    }
+  ],
+  "blocks":[
+    {
+      "type":"gift",
+      "name":"Gift Product",
+      "settings":[
+        {
+          "type":"product",
+          "id":"product",
+          "label":"Product"
+        }
+      ]
+    }
+  ],
+  "presets":[
+    {
+      "name":"Flash Deals"
+    }
+  ]
+}
+{% endschema %}
