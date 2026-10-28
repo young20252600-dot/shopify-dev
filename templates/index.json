@@ -199,6 +199,7 @@
         "template--18309637636369__f1552b18-6017-4231-810d-74e61da22c37-1680164422d7fb2efc-1",
         "template--18309637636369__f1552b18-6017-4231-810d-74e61da22c37-1680164422d7fb2efc-2"
       ],
+      "disabled": true,
       "settings": {
         "image": "shopify://shop_images/theme_cover_image.jpg",
         "height": "adapt",
@@ -234,6 +235,7 @@
         "template--18309637636369__38cdf60f-e431-43b5-aac3-7e6215447d67-1680164898782d94ce-0",
         "template--18309637636369__38cdf60f-e431-43b5-aac3-7e6215447d67-1680164898782d94ce-1"
       ],
+      "disabled": true,
       "settings": {
         "title": "<strong>Collections</strong>",
         "heading_size": "h1",
